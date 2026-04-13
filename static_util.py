@@ -160,4 +160,6 @@ def generate_trend_image(kline_data) -> dict:
     return {
         "trend_image": img_b64,
         "trend_image_description": "Trend-enhanced candlestick chart with support/resistance lines.",
+        "support_price": float(support_line_c[-1]),
+        "resistance_price": float(resist_line_c[-1]),
     }

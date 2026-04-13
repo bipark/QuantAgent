@@ -24,6 +24,8 @@ class IndicatorAgentState(TypedDict):
     indicator_report: Annotated[
         str, "Final indicator agent summary report to be used by downstream agents"
     ]
+    indicator_direction: Annotated[str, "Indicator agent direction: LONG, SHORT, or NEUTRAL"]
+    indicator_confidence: Annotated[int, "Indicator agent confidence score 0-100"]
 
     # Pattern Agent
     pattern_image: Annotated[
@@ -38,6 +40,8 @@ class IndicatorAgentState(TypedDict):
     pattern_report: Annotated[
         str, "Final pattern agent summary report to be used by downstream agents"
     ]
+    pattern_direction: Annotated[str, "Pattern agent direction: LONG, SHORT, or NEUTRAL"]
+    pattern_confidence: Annotated[int, "Pattern agent confidence score 0-100"]
 
     # Trend Agent
     trend_image: Annotated[
@@ -55,6 +59,10 @@ class IndicatorAgentState(TypedDict):
         str,
         "Final trend analysis summary, describing structure, directional bias, and technical observations for downstream agents",
     ]
+    trend_direction: Annotated[str, "Trend agent direction: LONG, SHORT, or NEUTRAL"]
+    trend_confidence: Annotated[int, "Trend agent confidence score 0-100"]
+    support_price: Annotated[float, "Current support price level from trendline analysis"]
+    resistance_price: Annotated[float, "Current resistance price level from trendline analysis"]
 
     # Final analysis and messaging context
     analysis_results: Annotated[str, "Computed result of the analysis or decision"]

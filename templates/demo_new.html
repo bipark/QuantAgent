@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
     <meta charset="utf-8">
-    <title>QuantAgent - Multi-Agent Trading System</title>
+    <title>QuantAgent - 멀티 에이전트 트레이딩 시스템</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -894,16 +894,16 @@
                                         <span style="font-size: 4.0rem; font-weight: 700; color: white; line-height: 1.0;">QuantAgent:</span>
                                     </div>
                                     <div class="text-center">
-                                        <span class="title-highlight">Multi-Agent Trading System</span>
+                                        <span class="title-highlight">멀티 에이전트 트레이딩 시스템</span>
                                     </div>
                                 </h1>
-                                <p class="text-lg text-white mb-8" style="font-size: 1.3rem; margin-top: 1.5rem;">Advanced multi-agent system combining technical indicators, pattern recognition, and trend analysis for comprehensive market insights.</p>
+                                <p class="text-lg text-white mb-8" style="font-size: 1.3rem; margin-top: 1.5rem;">기술적 지표, 패턴 인식, 추세 분석을 결합한 종합 시장 분석 멀티 에이전트 시스템</p>
 
                                 <!-- Buttons -->
                                 <div class="max-w-xs mx-auto sm:max-w-none sm:flex sm:justify-center mb-12 md:mb-0">
                                     <div>
                                         <a class="hero-btn" href="#analysis">
-                                            <span class="hero-btn-text">Start Analysis</span>
+                                            <span class="hero-btn-text">분석 시작</span>
                                             <span class="hero-btn-icon">
                                                 <i class="fas fa-arrow-right"></i>
                                             </span>
@@ -931,20 +931,20 @@
                     <!-- Analysis Form -->
                     <div class="form-section">
                         <h3 style="text-align: center; font-size: 1.6rem; font-weight: 600; color: var(--etrade-purple); margin-bottom: 2rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
-                            <i class="fas fa-cog" style="font-size: 1.5rem; color: var(--etrade-purple-light);"></i> Analysis Configuration
+                            <i class="fas fa-cog" style="font-size: 1.5rem; color: var(--etrade-purple-light);"></i> 분석 설정
                         </h3>
                         
                         <!-- Panel 1: Data Selection -->
                         <div class="panel-group">
                             <div class="panel">
                                 <h4 class="panel-title">
-                                    <i class="fas fa-database"></i> Data Selection
+                                    <i class="fas fa-database"></i> 데이터 선택
                                 </h4>
                                 
                                 <!-- Asset Selection -->
                                 <div class="form-group">
                                     <label class="form-label">
-                                        <i class="fas fa-coins"></i> Asset
+                                        <i class="fas fa-coins"></i> 자산
                                     </label>
                                     <div class="asset-button-grid" id="assetButtonGrid">
                                         <button type="button" class="asset-btn" data-asset="BTC" onclick="selectAsset(this, 'BTC')">
@@ -966,21 +966,21 @@
                                             <i class="fas fa-car"></i> TSLA
                                         </button>
                                         <button type="button" class="asset-btn custom-asset-btn" id="customAssetBtn" onclick="showCustomAssetInput()">
-                                            <i class="fas fa-plus"></i> Custom
+                                            <i class="fas fa-plus"></i> 직접 입력
                                         </button>
                                     </div>
                                     
                                     <!-- Custom Asset Input -->
                                     <div id="customAssetDiv" class="mt-3" style="display: none;">
                                         <div class="alert alert-info">
-                                            <h6><i class="fas fa-plus-circle"></i> Custom Asset Symbol</h6>
-                                            <p class="mb-2"><strong>💡 Examples:</strong> NQ (Nasdaq-100 Futures), ZN (10-Year Treasury), etc.</p>
-                                            <p class="mb-0"><strong>📝 Format:</strong> Enter the Yahoo Finance symbol for your asset</p>
+                                            <h6><i class="fas fa-plus-circle"></i> 사용자 정의 자산 심볼</h6>
+                                            <p class="mb-2"><strong>💡 예시:</strong> NQ (나스닥-100 선물), ZN (10년물 국채) 등</p>
+                                            <p class="mb-0"><strong>📝 형식:</strong> Yahoo Finance 심볼을 입력하세요</p>
                                         </div>
                                         <div class="input-group">
-                                            <input type="text" class="form-control" id="customAssetInput" placeholder="Enter symbol (e.g., NQ=F, ZN=F, ^VIX)">
+                                            <input type="text" class="form-control" id="customAssetInput" placeholder="심볼 입력 (예: NQ=F, ZN=F, ^VIX)">
                                             <button class="btn btn-outline-primary" type="button" onclick="confirmCustomAsset()">
-                                                <i class="fas fa-check"></i> Confirm
+                                                <i class="fas fa-check"></i> 확인
                                             </button>
                                         </div>
                                         <small class="form-text text-muted">Use Yahoo Finance symbols. For futures, add =F suffix (e.g., NQ=F)</small>
@@ -990,7 +990,7 @@
                                 <!-- Timeframe Selection -->
                                 <div class="form-group">
                                     <label class="form-label">
-                                        <i class="fas fa-chart-line"></i> Timeframe
+                                        <i class="fas fa-chart-line"></i> 타임프레임
                                     </label>
                                     <div class="timeframe-selector">
                                         <button type="button" class="timeframe-btn" data-timeframe="1m" onclick="selectTimeframe(this, '1m')">
@@ -1021,13 +1021,13 @@
                             <!-- Panel 2: Date & Time Configuration -->
                             <div class="panel">
                                 <h4 class="panel-title">
-                                    <i class="fas fa-calendar-alt"></i> Date & Time Configuration
+                                    <i class="fas fa-calendar-alt"></i> 날짜 및 시간 설정
                                 </h4>
                                 
                                 <!-- Date Range -->
                                 <div class="form-group">
                                     <label class="form-label" style="font-size: 1.2rem; font-weight: 600; color: #374151; margin-bottom: 0.75rem;">
-                                        <i class="fas fa-calendar-week" style="color: #6B7280; margin-right: 0.5rem;"></i> Date Range
+                                        <i class="fas fa-calendar-week" style="color: #6B7280; margin-right: 0.5rem;"></i> 날짜 범위
                                     </label>
                                     <div class="row">
                                         <div class="col-md-6">
@@ -1042,7 +1042,7 @@
                                 <!-- Time Selector -->
                                 <div class="form-group">
                                     <label class="form-label" style="font-size: 1.2rem; font-weight: 600; color: #374151; margin-bottom: 0.75rem;">
-                                        <i class="fas fa-clock" style="color: #6B7280; margin-right: 0.5rem;"></i> Time Selector
+                                        <i class="fas fa-clock" style="color: #6B7280; margin-right: 0.5rem;"></i> 시간 선택
                                     </label>
                                     <div class="row">
                                         <div class="col-md-6">
@@ -1059,7 +1059,7 @@
                                     <div class="form-check" style="margin-top: 1rem;">
                                         <input class="form-check-input" type="checkbox" id="useCurrentTime" checked style="transform: scale(1.2); margin-right: 0.75rem;">
                                         <label class="form-check-label" for="useCurrentTime" style="font-size: 1.3rem; font-weight: 500; color: #374151; cursor: pointer;">
-                                            Use current date & time for end
+                                            현재 날짜 및 시간 사용
                                         </label>
                                     </div>
                                 </div>
@@ -1081,12 +1081,12 @@
                         <div class="panel-group">
                             <div class="panel">
                                 <h4 class="panel-title">
-                                    <i class="fas fa-cog"></i> Settings
+                                    <i class="fas fa-cog"></i> 설정
                                 </h4>
                                 
                                 <!-- LLM Provider Selection -->
                                 <div class="form-group">
-                                    <label class="form-label">LLM Provider</label>
+                                    <label class="form-label">LLM 프로바이더</label>
                                     <select class="form-control" id="llmProviderSelect" onchange="handleProviderChange()">
                                         <option value="openai" selected>OpenAI</option>
                                         <option value="anthropic">Claude (Anthropic)</option>
@@ -1095,46 +1095,46 @@
                                     </select>
                                 </div>
                                 
-                                <!-- OpenAI API Key Input -->
+                                <!-- OpenAI API 키 Input -->
                                 <div class="form-group" id="openaiApiKeyGroup">
-                                    <label class="form-label">OpenAI API Key</label>
+                                    <label class="form-label">OpenAI API 키</label>
                                     <div class="input-group">
-                                        <input type="password" class="form-control" id="openaiApiKeyInput" placeholder="Enter your OpenAI API key">
+                                        <input type="password" class="form-control" id="openaiApiKeyInput" placeholder="OpenAI API 키를 입력하세요">
                                         <button class="btn btn-outline-primary" type="button" onclick="updateApiKey('openai')">
-                                            <i class="fas fa-save"></i> Update
+                                            <i class="fas fa-save"></i> 저장
                                         </button>
                                     </div>
                                 </div>
                                 
-                                <!-- Anthropic API Key Input -->
+                                <!-- Anthropic API 키 Input -->
                                 <div class="form-group" id="anthropicApiKeyGroup" style="display: none;">
-                                    <label class="form-label">Anthropic API Key</label>
+                                    <label class="form-label">Anthropic API 키</label>
                                     <div class="input-group">
-                                        <input type="password" class="form-control" id="anthropicApiKeyInput" placeholder="Enter your Anthropic API key">
+                                        <input type="password" class="form-control" id="anthropicApiKeyInput" placeholder="Anthropic API 키를 입력하세요">
                                         <button class="btn btn-outline-primary" type="button" onclick="updateApiKey('anthropic')">
-                                            <i class="fas fa-save"></i> Update
+                                            <i class="fas fa-save"></i> 저장
                                         </button>
                                     </div>
                                 </div>
                                 
                                 <!-- Qwen API Key Input -->
                                 <div class="form-group" id="qwenApiKeyGroup" style="display: none;">
-                                    <label class="form-label">Qwen API Key (Dashscope)</label>
+                                    <label class="form-label">Qwen API 키 (Dashscope)</label>
                                     <div class="input-group">
-                                        <input type="password" class="form-control" id="qwenApiKeyInput" placeholder="Enter your Qwen API key">
+                                        <input type="password" class="form-control" id="qwenApiKeyInput" placeholder="Qwen API 키를 입력하세요">
                                         <button class="btn btn-outline-primary" type="button" onclick="updateApiKey('qwen')">
-                                            <i class="fas fa-save"></i> Update
+                                            <i class="fas fa-save"></i> 저장
                                         </button>
                                     </div>
                                 </div>
 
-                                <!-- MiniMax API Key Input -->
+                                <!-- MiniMax API 키 Input -->
                                 <div class="form-group" id="minimaxApiKeyGroup" style="display: none;">
-                                    <label class="form-label">MiniMax API Key</label>
+                                    <label class="form-label">MiniMax API 키</label>
                                     <div class="input-group">
-                                        <input type="password" class="form-control" id="minimaxApiKeyInput" placeholder="Enter your MiniMax API key">
+                                        <input type="password" class="form-control" id="minimaxApiKeyInput" placeholder="MiniMax API 키를 입력하세요">
                                         <button class="btn btn-outline-primary" type="button" onclick="updateApiKey('minimax')">
-                                            <i class="fas fa-save"></i> Update
+                                            <i class="fas fa-save"></i> 저장
                                         </button>
                                     </div>
                                 </div>
@@ -1157,31 +1157,31 @@
                             <!-- Security Information Panel -->
                             <div class="panel security-panel">
                                 <h4 class="panel-title">
-                                    <i class="fas fa-shield-alt"></i> Security Information
+                                    <i class="fas fa-shield-alt"></i> 보안 정보
                                 </h4>
                                 
                                 <div class="security-info">
                                     <div class="security-item">
                                         <i class="fas fa-server security-icon"></i>
                                         <div class="security-content">
-                                            <strong>Localhost Only</strong>
-                                            <p>This server runs exclusively on localhost (127.0.0.1)</p>
+                                            <strong>로컬호스트 전용</strong>
+                                            <p>이 서버는 로컬호스트(127.0.0.1)에서만 실행됩니다</p>
                                         </div>
                                     </div>
                                     
                                     <div class="security-item">
                                         <i class="fas fa-key security-icon"></i>
                                         <div class="security-content">
-                                            <strong>API Key Security</strong>
-                                            <p>Your API key is stored locally and never uploaded to external servers</p>
+                                            <strong>API 키 보안</strong>
+                                            <p>API 키는 로컬에만 저장되며 외부 서버로 전송되지 않습니다</p>
                                         </div>
                                     </div>
                                     
                                     <div class="security-item">
                                         <i class="fas fa-shield-alt security-icon"></i>
                                         <div class="security-content">
-                                            <strong>Data Privacy</strong>
-                                            <p>All analysis data remains on your local machine</p>
+                                            <strong>데이터 프라이버시</strong>
+                                            <p>모든 분석 데이터는 로컬 머신에만 보관됩니다</p>
                                         </div>
                                     </div>
                                 </div>
@@ -1191,7 +1191,7 @@
                         <!-- Run Analysis Button -->
                         <div class="text-center" style="margin-top: 2rem;">
                             <button class="btn btn-primary btn-lg" id="analyzeBtn" onclick="runAnalysis()" style="padding: 1.5rem 3rem; font-size: 1.3rem; border-radius: 15px;">
-                                <i class="fas fa-play"></i> Run Analysis
+                                <i class="fas fa-play"></i> 분석 실행
                             </button>
                         </div>
                     </div>
@@ -1287,7 +1287,7 @@
             const customAsset = customAssetEl.value.trim();
 
             if (!customAsset) {
-                alert('Please enter a custom asset symbol.');
+                alert('사용자 정의 자산 심볼을 입력하세요.');
                 return;
             }
 
@@ -1516,14 +1516,14 @@
                         console.error('API key status error:', data.error);
                         // Don't show error if it's just that no key is set
                         if (data.has_key === false) {
-                            showApiKeyError(`No ${providerName} API key found. Please enter your ${providerName} API key.`);
+                            showApiKeyError(`${providerName} API 키가 없습니다. ${providerName} API 키를 입력하세요.`);
                         } else {
-                            showApiKeyError(`Error checking API key: ${data.error}`);
+                            showApiKeyError(`API 키 확인 오류: ${data.error}`);
                         }
                     } else if (data.has_key) {
-                        showApiKeyStatus(`${providerName} API key is set: ${data.masked_key}`);
+                        showApiKeyStatus(`${providerName} API 키 설정됨: ${data.masked_key}`);
                     } else {
-                        showApiKeyError(`No ${providerName} API key found. Please enter your ${providerName} API key.`);
+                        showApiKeyError(`${providerName} API 키가 없습니다. ${providerName} API 키를 입력하세요.`);
                     }
                 })
                 .catch(error => {
@@ -1579,7 +1579,7 @@
              const customAsset = customAssetEl.value.trim();
 
              if (!customAsset) {
-                 alert('Please enter a custom asset symbol.');
+                 alert('사용자 정의 자산 심볼을 입력하세요.');
                  return;
              }
 
@@ -1641,7 +1641,7 @@
              
              // Validate inputs
              if (!asset || !timeframe) {
-                 alert('Please select both asset and timeframe.');
+                 alert('자산과 타임프레임을 모두 선택하세요.');
                  return;
              }
              
@@ -1654,14 +1654,14 @@
              
              // Validate dates
              if (!startDate || !endDate) {
-                 alert('Please select both start and end dates.');
+                 alert('시작일과 종료일을 모두 선택하세요.');
                  return;
              }
              
              // Show loading state
              const analyzeBtn = document.getElementById('analyzeBtn');
              const originalText = analyzeBtn.innerHTML;
-             analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+             analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 분석 중...';
              analyzeBtn.disabled = true;
              
              // Prepare request data
@@ -1696,14 +1696,14 @@
                     window.location.href = data.redirect;
                  } else if (data.error) {
                      // Show error message
-                     alert('Analysis failed: ' + data.error);
+                     alert('분석 실패: ' + data.error);
                      // Reset button
                      analyzeBtn.innerHTML = originalText;
                      analyzeBtn.disabled = false;
                  } else {
                      // Handle other responses
                      console.log('Analysis completed:', data);
-                     alert('Analysis completed successfully!');
+                     alert('분석이 완료되었습니다!');
                      // Reset button
                      analyzeBtn.innerHTML = originalText;
                      analyzeBtn.disabled = false;
@@ -1711,7 +1711,7 @@
              })
              .catch(error => {
                  console.error('Error:', error);
-                 alert('An error occurred during analysis. Please try again.');
+                 alert('분석 중 오류가 발생했습니다. 다시 시도해 주세요.');
                  // Reset button
                  analyzeBtn.innerHTML = originalText;
                  analyzeBtn.disabled = false;
@@ -1739,8 +1739,8 @@
                 endTimeInput.value = currentTime;
                 
                 // Add visual indication
-                endDateInput.title = 'Locked: Using current date/time';
-                endTimeInput.title = 'Locked: Using current date/time';
+                endDateInput.title = '잠김: 현재 날짜/시간 사용 중';
+                endTimeInput.title = '잠김: 현재 날짜/시간 사용 중';
             } else {
                 // Unlock both inputs
                 endTimeInput.disabled = false;
@@ -1773,7 +1773,7 @@
             
             if (startDate && endDate && startDate > endDate) {
                 document.getElementById('dateRangeError').style.display = 'block';
-                document.getElementById('dateRangeErrorText').textContent = 'Start date cannot be after end date';
+                document.getElementById('dateRangeErrorText').textContent = '시작일이 종료일보다 이후일 수 없습니다';
             } else {
                 document.getElementById('dateRangeError').style.display = 'none';
             }
@@ -1861,7 +1861,7 @@
              }
              
              if (!apiKey) {
-                 showApiKeyError('Please enter an API key');
+                 showApiKeyError('API 키를 입력하세요');
                  return;
              }
              
@@ -1871,7 +1871,7 @@
              // Show loading state
              const updateBtn = event.target.closest('button');
              const originalText = updateBtn.innerHTML;
-             updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+             updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 저장 중...';
              updateBtn.disabled = true;
              
              // Make API call to update the key
@@ -1894,7 +1894,7 @@
                          'qwen': 'Qwen',
                          'minimax': 'MiniMax'
                      };
-                     showApiKeySuccess(`${providerNames[actualProvider] || actualProvider} API key updated successfully!`);
+                     showApiKeySuccess(`${providerNames[actualProvider] || actualProvider} API 키가 성공적으로 저장되었습니다!`);
                      if (actualProvider === 'openai') {
                          document.getElementById('openaiApiKeyInput').value = '';
                      } else if (actualProvider === 'anthropic') {
@@ -1906,12 +1906,12 @@
                      }
                      checkApiKeyStatus();
                  } else {
-                     showApiKeyError(data.error || 'Failed to update API key');
+                     showApiKeyError(data.error || 'API 키 저장에 실패했습니다');
                  }
              })
              .catch(error => {
                  console.error('Error:', error);
-                 showApiKeyError('An error occurred while updating the API key');
+                 showApiKeyError('API 키 저장 중 오류가 발생했습니다');
              })
              .finally(() => {
                  // Reset button

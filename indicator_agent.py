@@ -9,6 +9,8 @@ import json
 from langchain_core.messages import ToolMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
+from agent_utils import parse_direction_confidence
+
 
 def create_indicator_agent(llm, toolkit):
     """
@@ -36,8 +38,31 @@ def create_indicator_agent(llm, toolkit):
                     "Use them by providing appropriate arguments like `kline_data` and the respective periods.\n\n"
                     f"⚠️ The OHLC data provided is from a {time_frame} intervals, reflecting recent market behavior. "
                     "You must interpret this data quickly and accurately.\n\n"
+                    "### 지표 해석 기준:\n\n"
+                    "**RSI (Relative Strength Index)**:\n"
+                    "- RSI > 70: 과매수(overbought) → 하락 반전 가능성, SHORT 시그널\n"
+                    "- RSI < 30: 과매도(oversold) → 상승 반전 가능성, LONG 시그널\n"
+                    "- RSI 30~70: 중립 구간\n\n"
+                    "**Stochastic Oscillator (%K, %D)**:\n"
+                    "- %K > 80: 과매수 → 하락 반전 가능성\n"
+                    "- %K < 20: 과매도 → 상승 반전 가능성\n"
+                    "- %K가 %D를 상향 돌파: 골든크로스 → LONG\n"
+                    "- %K가 %D를 하향 돌파: 데드크로스 → SHORT\n\n"
+                    "**Williams %R**:\n"
+                    "- Williams %R > -20: 과매수 → 하락 반전 가능성 (강세가 아님!)\n"
+                    "- Williams %R < -80: 과매도 → 상승 반전 가능성\n\n"
+                    "**MACD**:\n"
+                    "- MACD가 Signal선 상향 돌파: 골든크로스 → 강한 LONG\n"
+                    "- MACD가 Signal선 하향 돌파: 데드크로스 → 강한 SHORT\n"
+                    "- 히스토그램 양수 증가: 상승 모멘텀 강화 / 음수 증가: 하락 모멘텀 강화\n\n"
+                    "**ROC (Rate of Change)**:\n"
+                    "- ROC > 0 증가: 상승 가속 / ROC < 0 감소: 하락 가속\n"
+                    "- ROC 0선 돌파: 추세 전환 시그널\n\n"
                     "Here is the OHLC data:\n{kline_data}.\n\n"
-                    "Call necessary tools, and analyze the results.\n",
+                    "Call necessary tools, and analyze the results.\n"
+                    "⚠️ You MUST write your entire analysis report in Korean (한국어).\n\n"
+                    "⚠️ 분석 리포트 마지막에 반드시 아래 JSON 블록을 포함하세요:\n"
+                    '```json\n{{"direction": "LONG 또는 SHORT 또는 NEUTRAL", "confidence": 0에서 100 사이 정수}}\n```\n',
                 ),
                 MessagesPlaceholder(variable_name="messages"),
             ]
@@ -115,9 +140,14 @@ def create_indicator_agent(llm, toolkit):
         else:
             report_content = "Indicator analysis completed, but no detailed report was generated."
 
+        report_text = report_content if report_content else "Indicator analysis completed."
+        parsed = parse_direction_confidence(report_text)
+
         return {
             "messages": messages,
-            "indicator_report": report_content if report_content else "Indicator analysis completed.",
+            "indicator_report": report_text,
+            "indicator_direction": parsed["direction"],
+            "indicator_confidence": parsed["confidence"],
         }
 
     return indicator_agent_node

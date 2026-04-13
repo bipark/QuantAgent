@@ -9,6 +9,8 @@ import time
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 from openai import RateLimitError
 
+from agent_utils import parse_direction_confidence
+
 
 # --- Retry wrapper for LLM invocation ---
 def invoke_with_retry(call_fn, *args, retries=3, wait_sec=4):
@@ -105,7 +107,10 @@ def create_trend_agent(tool_llm, graph_llm, toolkit):
                         f"This candlestick ({time_frame} K-line) chart includes automated trendlines: the **blue line** is support, and the **red line** is resistance, both derived from recent closing prices.\n\n"
                         "Analyze how price interacts with these lines — are candles bouncing off, breaking through, or compressing between them?\n\n"
                         "Based on trendline slope, spacing, and recent K-line behavior, predict the likely short-term trend: **upward**, **downward**, or **sideways**. "
-                        "Support your prediction with respect to prediction, reasoning, signals."
+                        "Support your prediction with respect to prediction, reasoning, signals.\n\n"
+                        "⚠️ You MUST write your entire analysis report in Korean (한국어).\n\n"
+                        '⚠️ 분석 리포트 마지막에 반드시 아래 JSON 블록을 포함하세요:\n'
+                        '```json\n{"direction": "LONG 또는 SHORT 또는 NEUTRAL", "confidence": 0에서 100 사이 정수}\n```'
                     ),
                 },
                 {
@@ -154,9 +159,14 @@ def create_trend_agent(tool_llm, graph_llm, toolkit):
             # If no image was generated, fall back to reasoning with messages
             final_response = invoke_with_retry(chain.invoke, messages)
 
+        report_text = final_response.content
+        parsed = parse_direction_confidence(report_text)
+
         return {
             "messages": messages + [final_response],
-            "trend_report": final_response.content,
+            "trend_report": report_text,
+            "trend_direction": parsed["direction"],
+            "trend_confidence": parsed["confidence"],
             "trend_image": trend_image_b64,
             "trend_image_filename": "trend_graph.png",
             "trend_image_description": (

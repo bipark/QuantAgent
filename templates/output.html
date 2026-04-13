@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuantAgent - Analysis Results</title>
+    <title>QuantAgent - 분석 결과</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -361,6 +361,11 @@
             color: var(--white);
         }
 
+        .decision-hold {
+            background: linear-gradient(135deg, #6B7280 0%, #9CA3AF 100%);
+            color: var(--white);
+        }
+
         .image-container {
             text-align: center;
             margin-top: 1rem;
@@ -472,11 +477,14 @@
                        -->
                 </div>
                 
-                <!-- Back Button -->
-                <div style="margin-top: 2rem;">
+                <!-- Back Button & Download Button -->
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                     <a href="/demo" class="btn btn-outline-light" style="font-size: 1.3rem; padding: 0.75rem 1.5rem; border-radius: 12px;">
-                        <i class="fas fa-arrow-left"></i>&nbsp;&nbsp; Back to Demo
+                        <i class="fas fa-arrow-left"></i>&nbsp;&nbsp; 데모로 돌아가기
                     </a>
+                    <button onclick="downloadMarkdownReport()" class="btn btn-outline-light" style="font-size: 1.3rem; padding: 0.75rem 1.5rem; border-radius: 12px; cursor: pointer; background: transparent; border: 1px solid white; color: white;">
+                        <i class="fas fa-file-download"></i>&nbsp;&nbsp; 마크다운 저장
+                    </button>
                 </div>
             </div>
         </div>
@@ -487,25 +495,25 @@
              <div class="panel-group">
                                  <div class="panel">
                     <h4 class="panel-title">
-                        <i class="fas fa-chart-pie"></i> Analysis Summary
+                        <i class="fas fa-chart-pie"></i> 분석 요약
                     </h4>
                      <div class="row align-items-stretch">
                          <div class="col-md-4 d-flex">
                              <div class="stats-card w-100">
                                  <div class="stats-number">{{ results.data_length if results.data_length else '1,247' }}</div>
-                                 <div class="stats-label">Data Points</div>
+                                 <div class="stats-label">데이터 포인트</div>
                              </div>
                          </div>
                          <div class="col-md-4 d-flex">
                              <div class="stats-card w-100">
                                  <div class="stats-number">{{ results.timeframe if results.timeframe else '1h' }}</div>
-                                 <div class="stats-label">Timeframe</div>
+                                 <div class="stats-label">타임프레임</div>
                              </div>
                          </div>
                          <div class="col-md-4 d-flex">
                              <div class="stats-card w-100">
                                  <div class="stats-number">{{ results.asset_name if results.asset_name else 'BTC' }}</div>
-                                 <div class="stats-label">Asset</div>
+                                 <div class="stats-label">자산</div>
                              </div>
                          </div>
                      </div>
@@ -514,26 +522,33 @@
                  <!-- Final Decision Panel -->
                  <div class="panel">
                      <h4 class="panel-title">
-                         <i class="fas fa-bullseye"></i> Final Trading Decision
+                         <i class="fas fa-bullseye"></i> 최종 매매 결정
                      </h4>
                      <div class="text-center mb-3">
                          {% if results.final_decision and results.final_decision.decision %}
-                             <span class="decision-badge decision-{{ results.final_decision.decision.lower() }}">{{ results.final_decision.decision }}</span>
+                             {% if results.final_decision.decision == '관망' %}
+                                 <span class="decision-badge decision-hold">관망 (HOLD)</span>
+                             {% else %}
+                                 <span class="decision-badge decision-{{ results.final_decision.decision.lower() }}">{{ results.final_decision.decision }}</span>
+                             {% endif %}
                          {% else %}
                              <span class="decision-badge decision-long">LONG</span>
                          {% endif %}
                      </div>
                      <div>
                          {% if results.final_decision %}
-                             <p><strong>Forecast Horizon:</strong> {{ results.final_decision.forecast_horizon if results.final_decision.forecast_horizon else '24-48 hours' }}</p>
-                             <p><strong>Risk/Reward Ratio:</strong> {{ results.final_decision.risk_reward_ratio if results.final_decision.risk_reward_ratio else '1:2.5' }}</p>
-                             <p><strong>Justification:</strong></p>
-                             <p>{{ results.final_decision.justification if results.final_decision.justification else 'Based on comprehensive analysis of technical indicators, pattern recognition, and trend analysis, the system recommends a LONG position on BTC. The analysis shows strong bullish momentum with key support levels holding, and multiple technical indicators confirming upward movement.' }}</p>
+                             <p><strong>예측 기간:</strong> {{ results.final_decision.forecast_horizon if results.final_decision.forecast_horizon else 'N/A' }}</p>
+                             {% if results.final_decision.decision != '관망' %}
+                             <p><strong>위험/보상 비율:</strong> {{ results.final_decision.risk_reward_ratio if results.final_decision.risk_reward_ratio else 'N/A' }}</p>
+                             {% endif %}
+                             <p><strong>종합 신뢰도:</strong> {{ results.final_decision.combined_confidence if results.final_decision.combined_confidence else 'N/A' }}/100</p>
+                             <p><strong>근거:</strong></p>
+                             <p>{{ results.final_decision.justification if results.final_decision.justification else 'N/A' }}</p>
                          {% else %}
-                             <p><strong>Forecast Horizon:</strong> 24-48 hours</p>
-                             <p><strong>Risk/Reward Ratio:</strong> 1:2.5</p>
-                             <p><strong>Justification:</strong></p>
-                             <p>Based on comprehensive analysis of technical indicators, pattern recognition, and trend analysis, the system recommends a LONG position on BTC. The analysis shows strong bullish momentum with key support levels holding, and multiple technical indicators confirming upward movement.</p>
+                             <p><strong>예측 기간:</strong> N/A</p>
+                             <p><strong>위험/보상 비율:</strong> N/A</p>
+                             <p><strong>근거:</strong></p>
+                             <p>분석 결과를 불러올 수 없습니다.</p>
                          {% endif %}
                      </div>
                  </div>
@@ -541,7 +556,7 @@
                                  <!-- Technical Indicators Panel -->
                 <div class="large-panel">
                     <h3 class="large-panel-title">
-                        <i class="fas fa-chart-bar"></i> Indicator Agent
+                        <i class="fas fa-chart-bar"></i> 지표 에이전트
                     </h3>
                     <div class="large-panel-section">
                         {% if results.technical_indicators %}
@@ -549,11 +564,11 @@
                         {% else %}
                             <div class="auto-beautify">
                                 <ul>
-                                    <li><strong>RSI (14):</strong> 65.4 - Neutral to bullish momentum</li>
-                                    <li><strong>MACD:</strong> Bullish crossover with increasing histogram</li>
-                                    <li><strong>Moving Averages:</strong> Price above 50-day and 200-day MA</li>
-                                    <li><strong>Bollinger Bands:</strong> Price in upper band, showing strength</li>
-                                    <li><strong>Volume:</strong> Above average volume supporting price action</li>
+                                    <li><strong>RSI (14):</strong> 65.4 - 중립~강세 모멘텀</li>
+                                    <li><strong>MACD:</strong> 상승 크로스오버, 히스토그램 증가</li>
+                                    <li><strong>이동평균:</strong> 50일, 200일 MA 위에 가격 위치</li>
+                                    <li><strong>볼린저밴드:</strong> 상단 밴드에 가격, 강세 시사</li>
+                                    <li><strong>거래량:</strong> 평균 이상의 거래량이 가격 움직임 지지</li>
                                 </ul>
                             </div>
                         {% endif %}
@@ -566,38 +581,38 @@
                                      <!-- Pattern Agent: Pattern Recognition + Pattern Visualization -->
             <div class="large-panel">
                 <h3 class="large-panel-title">
-                    <i class="fas fa-brain"></i> Pattern Agent
+                    <i class="fas fa-brain"></i> 패턴 에이전트
                 </h3>
                 <div style="display: flex; gap: 2rem; margin-top: 1rem;">
                     <!-- Left Panel: Pattern Recognition -->
                     <div class="panel" style="flex: 1;">
                         <h4 class="panel-title">
-                            <i class="fas fa-search"></i> Pattern Recognition
+                            <i class="fas fa-search"></i> 패턴 인식
                         </h4>
                         <div class="form-group">
-                            <h5>Identified Pattern:</h5>
+                            <h5>식별된 패턴:</h5>
                             {% if results.pattern_analysis %}
                                 <div class="auto-beautify">{{ results.pattern_analysis | safe }}</div>
                             {% else %}
                                 <ul>
-                                    <li><strong>Descending Triangle:</strong> Lower highs with flat support</li>
-                                    <li><strong>Structure:</strong> Converging trend lines</li>
-                                    <li><strong>Trend:</strong> Prior downtrend continuation</li>
-                                    <li><strong>Symmetry:</strong> Consistent pattern formation</li>
+                                    <li><strong>하강 삼각형:</strong> 낮아지는 고점과 수평 지지선</li>
+                                    <li><strong>구조:</strong> 수렴하는 추세선</li>
+                                    <li><strong>추세:</strong> 기존 하락 추세 지속</li>
+                                    <li><strong>대칭성:</strong> 일관된 패턴 형성</li>
                                 </ul>
                             {% endif %}
                         </div>
                         
                         <div class="form-group">
-                            <h5>Pattern Reliability:</h5>
-                            <p>Descending triangle has a high success rate for bearish continuation patterns. Key support level at 110,000.</p>
+                            <h5>패턴 신뢰도:</h5>
+                            <p>하락 삼각형은 약세 지속 패턴으로 높은 성공률을 보입니다. 주요 지지선 110,000.</p>
                         </div>
                     </div>
                     
                     <!-- Right Panel: Pattern Visualization -->
                     <div class="panel" style="flex: 1;">
                         <h4 class="panel-title">
-                            <i class="fas fa-chart-bar"></i> Pattern Visualization
+                            <i class="fas fa-chart-bar"></i> 패턴 시각화
                         </h4>
                         <div class="image-container">
                             {% if results.pattern_chart %}
@@ -605,7 +620,7 @@
                             {% else %}
                                 <img src="/api/images/pattern" alt="Pattern Analysis Chart" class="analysis-image">
                             {% endif %}
-                            <p class="chart-caption">Desc Triangle Overlay</p>
+                            <p class="chart-caption">하락 삼각형 오버레이</p>
                         </div>
                     </div>
                 </div>
@@ -614,33 +629,33 @@
                          <!-- Trend Agent: Trend Analysis + Trend Chart -->
             <div class="large-panel">
                 <h3 class="large-panel-title">
-                    <i class="fas fa-chart-line"></i> Trend Agent
+                    <i class="fas fa-chart-line"></i> 추세 에이전트
                 </h3>
                 <div class="large-panel-content">
                     <div class="panel-group-2">
                         <div class="panel">
                             <h4 class="panel-title">
-                                <i class="fas fa-analytics"></i> Trend Analysis
+                                <i class="fas fa-analytics"></i> 추세 분석
                             </h4>
                             <div class="form-group">
-                                <h5>Trend Strength Indicators:</h5>
+                                <h5>추세 강도 지표:</h5>
                                 <ul>
-                                    <li><strong>ADX:</strong> 28.5 - Moderate trend strength</li>
-                                    <li><strong>RSI Divergence:</strong> Positive divergence detected</li>
-                                    <li><strong>Momentum:</strong> Declining momentum indicators</li>
-                                    <li><strong>Volume:</strong> Decreasing volume on rallies</li>
+                                    <li><strong>ADX:</strong> 28.5 - 중간 추세 강도</li>
+                                    <li><strong>RSI 다이버전스:</strong> 양의 다이버전스 감지</li>
+                                    <li><strong>모멘텀:</strong> 모멘텀 지표 하락 중</li>
+                                    <li><strong>거래량:</strong> 반등 시 거래량 감소</li>
                                 </ul>
                             </div>
                             
                             <div class="form-group">
-                                <h5>Likely Downtrend Signal:</h5>
-                                <p>Consistent downward slope and inability to break resistance suggest continued bearish pressure. Short-term trend likely to continue downward.</p>
+                                <h5>하락 추세 신호:</h5>
+                                <p>지속적인 하락 기울기와 저항선 돌파 실패는 약세 압력의 지속을 시사합니다. 단기 추세는 하락 지속 가능성이 높습니다.</p>
                             </div>
                         </div>
                         
                         <div class="panel">
                             <h4 class="panel-title">
-                                <i class="fas fa-chart-line"></i> Trend Visualization
+                                <i class="fas fa-chart-line"></i> 추세 시각화
                             </h4>
                             <div class="image-container">
                                 {% if results.trend_chart %}
@@ -648,7 +663,7 @@
                                 {% else %}
                                     <img src="/api/images/trend" alt="Trend Analysis Chart" class="analysis-image">
                                 {% endif %}
-                                <p class="chart-caption">Support & Resistance Lines</p>
+                                <p class="chart-caption">지지선 및 저항선</p>
                             </div>
                         </div>
                     </div>
@@ -662,6 +677,55 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
+        // Store results data for markdown download
+        var analysisResultsForDownload = {{ results | tojson | safe }};
+
+        function downloadMarkdownReport() {
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>&nbsp;&nbsp; 저장 중...';
+            btn.disabled = true;
+
+            // Build payload without base64 images (they're not needed in markdown)
+            const payload = Object.assign({}, analysisResultsForDownload);
+            delete payload.pattern_chart;
+            delete payload.trend_chart;
+
+            fetch('/api/download-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('다운로드에 실패했습니다');
+                const disposition = response.headers.get('Content-Disposition');
+                let filename = 'QuantAgent_report.md';
+                if (disposition) {
+                    const match = disposition.match(/filename=(.+)/);
+                    if (match) filename = match[1];
+                }
+                return response.blob().then(blob => ({ blob, filename }));
+            })
+            .then(({ blob, filename }) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Download error:', error);
+                alert('마크다운 저장 중 오류가 발생했습니다.');
+            })
+            .finally(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        }
+
         // Check for full results in sessionStorage and update page
         document.addEventListener('DOMContentLoaded', function() {
             // Check if we have full results with images in sessionStorage
@@ -686,6 +750,9 @@
                         }
                     }
                     
+                    // Update download data with full results (has richer content)
+                    analysisResultsForDownload = results;
+
                     // Clear sessionStorage after using the results
                     sessionStorage.removeItem('analysisResults');
                 } catch (e) {

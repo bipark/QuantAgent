@@ -8,7 +8,7 @@ from typing import Any, Dict
 
 import pandas as pd
 import yfinance as yf
-from flask import Flask, jsonify, render_template, request, send_file
+from flask import Flask, Response, jsonify, render_template, request, send_file
 from openai import OpenAI
 
 import static_util
@@ -32,17 +32,17 @@ class WebTradingAnalyzer:
         # Available assets and their display names
         self.asset_mapping = {
             "SPX": "S&P 500",
-            "BTC": "Bitcoin",
-            "GC": "Gold Futures",
-            "NQ": "Nasdaq Futures",
-            "CL": "Crude Oil",
+            "BTC": "비트코인",
+            "GC": "금 선물",
+            "NQ": "나스닥 선물",
+            "CL": "원유",
             "ES": "E-mini S&P 500",
-            "DJI": "Dow Jones",
+            "DJI": "다우존스",
             "QQQ": "Invesco QQQ Trust",
-            "VIX": "Volatility Index",
-            "DXY": "US Dollar Index",
-            "AAPL": "Apple Inc.",  # New asset
-            "TSLA": "Tesla Inc.",  # New asset
+            "VIX": "변동성 지수",
+            "DXY": "미국 달러 지수",
+            "AAPL": "Apple Inc.",
+            "TSLA": "Tesla Inc.",
         }
 
         # Yahoo Finance symbol mapping
@@ -232,6 +232,22 @@ class WebTradingAnalyzer:
         files = list(asset_dir.glob(pattern))
         return sorted(files)
 
+    def _get_data_points_for_timeframe(self, timeframe: str, df_length: int) -> int:
+        """Return minimum data points for reliable indicator computation per timeframe."""
+        timeframe_points = {
+            "1m": 80,
+            "5m": 80,
+            "15m": 75,
+            "30m": 70,
+            "1h": 70,
+            "4h": 65,
+            "1d": 60,
+            "1w": 60,
+            "1mo": 60,
+        }
+        desired = timeframe_points.get(timeframe.lower(), 70)
+        return min(desired, df_length)
+
     def run_analysis(
         self, df: pd.DataFrame, asset_name: str, timeframe: str
     ) -> Dict[str, Any]:
@@ -248,7 +264,8 @@ class WebTradingAnalyzer:
             # else:
             #     df_slice = df.tail(45)
 
-            df_slice = df.tail(45)
+            n_points = self._get_data_points_for_timeframe(timeframe, len(df))
+            df_slice = df.tail(n_points)
 
             # Ensure DataFrame has the expected structure
             required_columns = ["Datetime", "Open", "High", "Low", "Close"]
@@ -305,6 +322,8 @@ class WebTradingAnalyzer:
                 "stock_name": asset_name,
                 "pattern_image": p_image["pattern_image"],
                 "trend_image": t_image["trend_image"],
+                "support_price": t_image.get("support_price"),
+                "resistance_price": t_image.get("resistance_price"),
             }
 
             # Run the trading graph
@@ -341,25 +360,25 @@ class WebTradingAnalyzer:
             ):
                 return {
                     "success": False,
-                    "error": f"❌ Invalid API Key: The {provider_name} API key you provided is invalid or has expired. Please check your API key in the Settings section and try again.",
+                    "error": f"❌ 유효하지 않은 API 키: {provider_name} API 키가 유효하지 않거나 만료되었습니다. 설정에서 API 키를 확인하고 다시 시도하세요.",
                 }
             elif "rate limit" in error_msg.lower() or "429" in error_msg:
                 return {
                     "success": False,
-                    "error": f"⚠️ Rate Limit Exceeded: You've hit the {provider_name} API rate limit. Please wait a moment and try again.",
+                    "error": f"⚠️ 요청 제한 초과: {provider_name} API 요청 제한에 도달했습니다. 잠시 후 다시 시도하세요.",
                 }
             elif "quota" in error_msg.lower() or "billing" in error_msg.lower():
                 return {
                     "success": False,
-                    "error": f"💳 Billing Issue: Your {provider_name} account has insufficient credits or billing issues. Please check your {provider_name} account.",
+                    "error": f"💳 결제 문제: {provider_name} 계정의 크레딧이 부족하거나 결제 문제가 있습니다. {provider_name} 계정을 확인하세요.",
                 }
             elif "network" in error_msg.lower() or "connection" in error_msg.lower():
                 return {
                     "success": False,
-                    "error": f"🌐 Network Error: Unable to connect to {provider_name} servers. Please check your internet connection and try again.",
+                    "error": f"🌐 네트워크 오류: {provider_name} 서버에 연결할 수 없습니다. 인터넷 연결을 확인하고 다시 시도하세요.",
                 }
             else:
-                return {"success": False, "error": f"❌ Analysis Error: {error_msg}"}
+                return {"success": False, "error": f"❌ 분석 오류: {error_msg}"}
 
     def extract_analysis_results(self, results: Dict[str, Any]) -> Dict[str, Any]:
         """Extract and format analysis results for web display."""
@@ -399,6 +418,9 @@ class WebTradingAnalyzer:
                             "forecast_horizon", "N/A"
                         ),
                         "justification": decision_data.get("justification", "N/A"),
+                        "combined_confidence": decision_data.get(
+                            "combined_confidence", "N/A"
+                        ),
                     }
                 else:
                     # If no JSON found, return the raw text
@@ -466,7 +488,7 @@ class WebTradingAnalyzer:
             if start >= end:
                 return {
                     "valid": False,
-                    "error": "Start date/time must be before end date/time",
+                    "error": "시작 날짜/시간이 종료 날짜/시간보다 이전이어야 합니다",
                 }
 
             # Get timeframe limits
@@ -480,7 +502,7 @@ class WebTradingAnalyzer:
             if days_diff > max_days:
                 return {
                     "valid": False,
-                    "error": f"Time range too large. {limits['description']}. Please select a smaller range.",
+                    "error": f"시간 범위가 너무 큽니다. {limits['description']}. 더 작은 범위를 선택하세요.",
                     "max_days": max_days,
                     "current_days": round(days_diff, 2),
                 }
@@ -488,7 +510,7 @@ class WebTradingAnalyzer:
             return {"valid": True, "days": round(days_diff, 2)}
 
         except ValueError as e:
-            return {"valid": False, "error": f"Invalid date/time format: {str(e)}"}
+            return {"valid": False, "error": f"잘못된 날짜/시간 형식: {str(e)}"}
 
     def validate_api_key(self, provider: str = None) -> Dict[str, Any]:
         """Validate the current API key by making a simple test call."""
@@ -515,7 +537,7 @@ class WebTradingAnalyzer:
                 if not api_key:
                     return {
                         "valid": False,
-                        "error": "❌ Invalid API Key: The Anthropic API key is not set. Please update it in the Settings section.",
+                        "error": "❌ 유효하지 않은 API 키: Anthropic API 키가 설정되지 않았습니다. 설정에서 업데이트하세요.",
                     }
                 
                 client = Anthropic(api_key=api_key)
@@ -534,7 +556,7 @@ class WebTradingAnalyzer:
                 if not api_key:
                     return {
                         "valid": False,
-                        "error": "❌ Invalid API Key: The Qwen API key is not set. Please update it in the Settings section.",
+                        "error": "❌ 유효하지 않은 API 키: Qwen API 키가 설정되지 않았습니다. 설정에서 업데이트하세요.",
                     }
 
                 # Make a simple test call using LangChain
@@ -548,7 +570,7 @@ class WebTradingAnalyzer:
                 if not api_key:
                     return {
                         "valid": False,
-                        "error": "❌ Invalid API Key: The MiniMax API key is not set. Please update it in the Settings section.",
+                        "error": "❌ 유효하지 않은 API 키: MiniMax API 키가 설정되지 않았습니다. 설정에서 업데이트하세요.",
                     }
 
                 client = _OpenAI(api_key=api_key, base_url="https://api.minimax.io/v1")
@@ -559,7 +581,7 @@ class WebTradingAnalyzer:
                 )
 
                 provider_name = "MiniMax"
-            return {"valid": True, "message": f"{provider_name} API key is valid"}
+            return {"valid": True, "message": f"{provider_name} API 키가 유효합니다"}
 
         except Exception as e:
             error_msg = str(e)
@@ -584,25 +606,83 @@ class WebTradingAnalyzer:
             ):
                 return {
                     "valid": False,
-                    "error": f"❌ Invalid API Key: The {provider_name} API key is invalid or has expired. Please update it in the Settings section.",
+                    "error": f"❌ 유효하지 않은 API 키: {provider_name} API 키가 유효하지 않거나 만료되었습니다. 설정에서 업데이트하세요.",
                 }
             elif "rate limit" in error_msg.lower() or "429" in error_msg:
                 return {
                     "valid": False,
-                    "error": f"⚠️ Rate Limit Exceeded: You've hit the {provider_name} API rate limit. Please wait a moment and try again.",
+                    "error": f"⚠️ 요청 제한 초과: {provider_name} API 요청 제한에 도달했습니다. 잠시 후 다시 시도하세요.",
                 }
             elif "quota" in error_msg.lower() or "billing" in error_msg.lower():
                 return {
                     "valid": False,
-                    "error": f"💳 Billing Issue: Your {provider_name} account has insufficient credits or billing issues. Please check your {provider_name} account.",
+                    "error": f"💳 결제 문제: {provider_name} 계정의 크레딧이 부족하거나 결제 문제가 있습니다. {provider_name} 계정을 확인하세요.",
                 }
             elif "network" in error_msg.lower() or "connection" in error_msg.lower():
                 return {
                     "valid": False,
-                    "error": f"🌐 Network Error: Unable to connect to {provider_name} servers. Please check your internet connection.",
+                    "error": f"🌐 네트워크 오류: {provider_name} 서버에 연결할 수 없습니다. 인터넷 연결을 확인하세요.",
                 }
             else:
-                return {"valid": False, "error": f"❌ API Key Error: {error_msg}"}
+                return {"valid": False, "error": f"❌ API 키 오류: {error_msg}"}
+
+    def generate_markdown_report(self, results: Dict[str, Any]) -> str:
+        """Generate a markdown report from analysis results."""
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        asset_name = results.get("asset_name", "N/A")
+        timeframe = results.get("timeframe", "N/A")
+        data_length = results.get("data_length", "N/A")
+
+        lines = [
+            f"# QuantAgent 분석 리포트",
+            f"",
+            f"- **자산**: {asset_name}",
+            f"- **타임프레임**: {timeframe}",
+            f"- **데이터 포인트**: {data_length}",
+            f"- **분석 시각**: {now}",
+            f"",
+        ]
+
+        # Final decision
+        fd = results.get("final_decision")
+        if fd:
+            lines.append("## 최종 매매 결정")
+            lines.append("")
+            if isinstance(fd, dict) and "decision" in fd:
+                lines.append(f"- **결정**: {fd.get('decision', 'N/A')}")
+                lines.append(f"- **예측 기간**: {fd.get('forecast_horizon', 'N/A')}")
+                lines.append(f"- **위험/보상 비율**: {fd.get('risk_reward_ratio', 'N/A')}")
+                lines.append(f"- **종합 신뢰도**: {fd.get('combined_confidence', 'N/A')}/100")
+                lines.append(f"- **근거**: {fd.get('justification', 'N/A')}")
+            elif isinstance(fd, dict) and "raw" in fd:
+                lines.append(fd["raw"])
+            lines.append("")
+
+        # Indicator report
+        indicator = results.get("technical_indicators", "")
+        if indicator:
+            lines.append("## 지표 에이전트 리포트")
+            lines.append("")
+            lines.append(indicator)
+            lines.append("")
+
+        # Pattern report
+        pattern = results.get("pattern_analysis", "")
+        if pattern:
+            lines.append("## 패턴 에이전트 리포트")
+            lines.append("")
+            lines.append(pattern)
+            lines.append("")
+
+        # Trend report
+        trend = results.get("trend_analysis", "")
+        if trend:
+            lines.append("## 추세 에이전트 리포트")
+            lines.append("")
+            lines.append(trend)
+            lines.append("")
+
+        return "\n".join(lines)
 
     def load_custom_assets(self) -> list:
         """Load custom assets from persistent JSON file."""
@@ -671,9 +751,9 @@ def output():
         "asset_name": "BTC",
         "timeframe": "1h",
         "data_length": 1247,
-        "technical_indicators": "RSI (14): 65.4 - Neutral to bullish momentum\nMACD: Bullish crossover with increasing histogram\nMoving Averages: Price above 50-day and 200-day MA\nBollinger Bands: Price in upper band, showing strength\nVolume: Above average volume supporting price action",
-        "pattern_analysis": "Bull Flag Pattern: Consolidation after strong upward move\nGolden Cross: 50-day MA crossing above 200-day MA\nHigher Highs & Higher Lows: Uptrend confirmation\nVolume Pattern: Increasing volume on price advances",
-        "trend_analysis": "Primary Trend: Bullish (Long-term)\nSecondary Trend: Bullish (Medium-term)\nShort-term Trend: Consolidating with bullish bias\nADX: 28.5 - Moderate trend strength\nPrice Action: Higher highs and higher lows maintained\nMomentum: Positive divergence on RSI",
+        "technical_indicators": "RSI (14): 65.4 - 중립~강세 모멘텀\nMACD: 상승 크로스오버, 히스토그램 증가\n이동평균: 50일, 200일 MA 위에 가격 위치\n볼린저밴드: 상단 밴드에 가격, 강세 시사\n거래량: 평균 이상의 거래량이 가격 움직임 지지",
+        "pattern_analysis": "강세 깃발 패턴: 강한 상승 후 조정 구간\n골든 크로스: 50일 MA가 200일 MA를 상향 돌파\n고점 상승 & 저점 상승: 상승 추세 확인\n거래량 패턴: 가격 상승 시 거래량 증가",
+        "trend_analysis": "주요 추세: 강세 (장기)\n보조 추세: 강세 (중기)\n단기 추세: 강세 편향 조정 중\nADX: 28.5 - 중간 추세 강도\n가격 행동: 고점 상승, 저점 상승 유지\n모멘텀: RSI 양의 다이버전스",
         "pattern_chart": "",
         "trend_chart": "",
         "pattern_image_filename": "",
@@ -682,7 +762,7 @@ def output():
             "decision": "LONG",
             "risk_reward_ratio": "1:2.5",
             "forecast_horizon": "24-48 hours",
-            "justification": "Based on comprehensive analysis of technical indicators, pattern recognition, and trend analysis, the system recommends a LONG position on BTC. The analysis shows strong bullish momentum with key support levels holding, and multiple technical indicators confirming upward movement.",
+            "justification": "기술적 지표, 패턴 인식, 추세 분석의 종합적 분석을 바탕으로 BTC 매수(LONG) 포지션을 권장합니다. 주요 지지선이 유지되고 있으며, 다수의 기술적 지표가 상승 움직임을 확인하고 있습니다.",
         },
     }
 
@@ -699,7 +779,7 @@ def analyze():
         redirect_to_output = data.get("redirect_to_output", False)
 
         if data_source != "live":
-            return jsonify({"error": "Only live Yahoo Finance data is supported."})
+            return jsonify({"error": "실시간 Yahoo Finance 데이터만 지원됩니다."})
 
         # Live Yahoo Finance data only
         start_date = data.get("start_date")
@@ -714,10 +794,10 @@ def analyze():
             try:
                 start_dt = datetime.strptime(start_datetime_str, "%Y-%m-%d %H:%M")
             except ValueError:
-                return jsonify({"error": "Invalid start date/time format."})
+                return jsonify({"error": "잘못된 시작 날짜/시간 형식입니다."})
 
             if start_dt > datetime.now():
-                return jsonify({"error": "Start date/time cannot be in the future."})
+                return jsonify({"error": "시작 날짜/시간은 미래일 수 없습니다."})
 
         if end_date:
             if use_current_time:
@@ -727,14 +807,14 @@ def analyze():
                 try:
                     end_dt = datetime.strptime(end_datetime_str, "%Y-%m-%d %H:%M")
                 except ValueError:
-                    return jsonify({"error": "Invalid end date/time format."})
+                    return jsonify({"error": "잘못된 종료 날짜/시간 형식입니다."})
 
                 if end_dt > datetime.now():
-                    return jsonify({"error": "End date/time cannot be in the future."})
+                    return jsonify({"error": "종료 날짜/시간은 미래일 수 없습니다."})
 
             if start_date and start_dt and end_dt and end_dt < start_dt:
                 return jsonify(
-                    {"error": "End date/time cannot be earlier than start date/time."}
+                    {"error": "종료 날짜/시간은 시작 날짜/시간보다 이전일 수 없습니다."}
                 )
 
         # Fetch data with datetime objects
@@ -742,7 +822,7 @@ def analyze():
             asset, timeframe, start_dt, end_dt
         )
         if df.empty:
-            return jsonify({"error": "No data available for the specified parameters"})
+            return jsonify({"error": "지정된 조건에 해당하는 데이터가 없습니다"})
 
         display_name = analyzer.asset_mapping.get(asset, asset)
         if display_name is None:
@@ -774,12 +854,36 @@ def analyze():
                 )
             else:
                 return jsonify(
-                    {"error": formatted_results.get("error", "Analysis failed")}
+                    {"error": formatted_results.get("error", "분석에 실패했습니다")}
                 )
 
         return jsonify(formatted_results)
     except Exception as e:
         return jsonify({"error": str(e)})
+
+
+@app.route("/api/download-report", methods=["POST"])
+def download_report():
+    """API endpoint to generate and download a markdown report."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "결과 데이터가 필요합니다"}), 400
+
+        markdown = analyzer.generate_markdown_report(data)
+
+        asset_name = data.get("asset_name", "analysis")
+        timeframe = data.get("timeframe", "")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"QuantAgent_{asset_name}_{timeframe}_{timestamp}.md"
+
+        return Response(
+            markdown,
+            mimetype="text/markdown; charset=utf-8",
+            headers={"Content-Disposition": f"attachment; filename={filename}"},
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/files/<asset>/<timeframe>")
@@ -809,11 +913,11 @@ def save_custom_asset():
         data = request.get_json()
         symbol = (data.get("symbol") or "").strip()
         if not symbol:
-            return jsonify({"success": False, "error": "Symbol required"}), 400
+            return jsonify({"success": False, "error": "심볼이 필요합니다"}), 400
 
         ok = analyzer.save_custom_asset(symbol)
         if not ok:
-            return jsonify({"success": False, "error": "Failed to save symbol"}), 500
+            return jsonify({"success": False, "error": "심볼 저장에 실패했습니다"}), 500
 
         return jsonify({"success": True, "symbol": symbol})
     except Exception as e:
@@ -873,7 +977,7 @@ def validate_date_range():
         end_time = data.get("end_time", "23:59")
 
         if not all([start_date, end_date, timeframe]):
-            return jsonify({"error": "Missing required parameters"})
+            return jsonify({"error": "필수 매개변수가 누락되었습니다"})
 
         validation = analyzer.validate_date_range(
             start_date, end_date, timeframe, start_time, end_time
@@ -892,7 +996,7 @@ def update_provider():
         provider = data.get("provider", "openai")
 
         if provider not in ["openai", "anthropic", "qwen", "minimax"]:
-            return jsonify({"error": "Provider must be 'openai', 'anthropic', 'qwen', or 'minimax'"})
+            return jsonify({"error": "프로바이더는 'openai', 'anthropic', 'qwen', 'minimax' 중 하나여야 합니다"})
 
         print(f"Updating provider to: {provider}")
 
@@ -953,10 +1057,10 @@ def update_api_key():
         provider = data.get("provider", "openai")  # Default to "openai" for backward compatibility
 
         if not new_api_key:
-            return jsonify({"error": "API key is required"})
+            return jsonify({"error": "API 키가 필요합니다"})
 
         if provider not in ["openai", "anthropic", "qwen", "minimax"]:
-            return jsonify({"error": "Provider must be 'openai', 'anthropic', 'qwen', or 'minimax'"})
+            return jsonify({"error": "프로바이더는 'openai', 'anthropic', 'qwen', 'minimax' 중 하나여야 합니다"})
 
         print(f"Updating {provider} API key to: {new_api_key[:8]}...{new_api_key[-4:]}")
 
@@ -1039,10 +1143,10 @@ def get_image(image_type):
         elif image_type == "trend_chart":
             image_path = "trend_chart.png"
         else:
-            return jsonify({"error": "Invalid image type"})
+            return jsonify({"error": "잘못된 이미지 유형입니다"})
 
         if not os.path.exists(image_path):
-            return jsonify({"error": "Image not found"})
+            return jsonify({"error": "이미지를 찾을 수 없습니다"})
 
         return send_file(image_path, mimetype="image/png")
 
@@ -1080,4 +1184,4 @@ if __name__ == "__main__":
     static_dir = Path("static")
     static_dir.mkdir(exist_ok=True)
 
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5000)
