@@ -522,9 +522,9 @@ SHORT R/R = (현재가 - 지지선) / (저항선 - 현재가)
 
 질문, 피드백, 또는 협업 기회에 대해서는 아래로 연락해 주세요:
 
+원저자
 **이메일**: [chenyu.you@stonybrook.edu](mailto:chenyu.you@stonybrook.edu), [siqisun@fudan.edu.cn](mailto:siqisun@fudan.edu.cn)
 
+수정저자
+**이메일**: [rtlink.park@gmail.com](mailto:rtlink.park@gmail.com), 
 
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=Y-Research-SBU/QuantAgent&type=Date)](https://www.star-history.com/#Y-Research-SBU/QuantAgent&Date)
