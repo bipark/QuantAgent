@@ -8,3 +8,10 @@ pdf_content.txt
 read.html
 read_files/
 app/
+
+# 환경 변수 / 민감 정보
+.env
+.env.*
+
+# 사용자 로컬 데이터
+data/
